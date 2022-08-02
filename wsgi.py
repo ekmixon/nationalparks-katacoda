@@ -34,12 +34,13 @@ def format_result(entries):
     result = []
 
     for entry in entries:
-        data = {}
+        data = {
+            'id': entry['name'],
+            'latitude': str(entry['coordinates'][0]),
+            'longitude': str(entry['coordinates'][1]),
+            'name': entry['toponymName'],
+        }
 
-        data['id'] = entry['name']
-        data['latitude'] = str(entry['coordinates'][0])
-        data['longitude'] = str(entry['coordinates'][1])
-        data['name'] = entry['toponymName']
 
         result.append(data)
 
@@ -55,9 +56,7 @@ def load_data(filename):
     dataset = []
 
     with open(filename, 'r') as fp:
-        for data in fp.readlines():
-            dataset.append(json.loads(data))
-
+        dataset.extend(json.loads(data) for data in fp)
     return len(dataset)
 
 load_data(DATASET_FILE)
@@ -65,7 +64,7 @@ load_data(DATASET_FILE)
 class DataLoad(Resource):
     def get(self):
         count = load_data(DATASET_FILE)
-        return 'Inserted %s items.' % count
+        return f'Inserted {count} items.'
 
 api.add_resource(DataLoad, '/ws/data/load')
 
